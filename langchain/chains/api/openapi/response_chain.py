@@ -41,13 +41,17 @@ class APIResponderChain(LLMChain):
 
     @classmethod
     def from_llm(
-        cls, llm: BaseLanguageModel, verbose: bool = True, **kwargs: Any
+        cls, llm: BaseLanguageModel, 
+        typescript_definition: str, 
+        verbose: bool = True, 
+        **kwargs: Any
     ) -> LLMChain:
         """Get the response parser."""
         output_parser = APIResponderOutputParser()
         prompt = PromptTemplate(
             template=RESPONSE_TEMPLATE,
             output_parser=output_parser,
+            partial_variables={"schema": typescript_definition},
             input_variables=["response", "instructions"],
         )
         return cls(prompt=prompt, llm=llm, verbose=verbose, **kwargs)

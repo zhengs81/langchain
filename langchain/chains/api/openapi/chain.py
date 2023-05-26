@@ -213,7 +213,10 @@ class OpenAPIEndpointChain(Chain, BaseModel):
             response_chain = None
         else:
             response_chain = APIResponderChain.from_llm(
-                llm, verbose=verbose, callbacks=callbacks
+                llm,
+                typescript_definition=operation.fetch_response_body(), 
+                verbose=verbose,
+                callbacks=callbacks,
             )
         _requests = requests or Requests()
         return cls(

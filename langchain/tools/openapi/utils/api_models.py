@@ -411,6 +411,9 @@ class APIOperation(BaseModel):
     method: HTTPVerb = Field(alias="method")
     """The HTTP method of the operation."""
 
+    response_body: Optional[dict] = Field(alias="response_body")
+    """response_schema of API call"""
+
     properties: Sequence[APIProperty] = Field(alias="properties")
 
     # TODO: Add parse in used components to be able to specify what type of
@@ -476,6 +479,9 @@ class APIOperation(BaseModel):
             else None
         )
         description = operation.description or operation.summary
+        operation.responses['path'] = path
+        operation.responses['method'] = method
+        response_body = operation.responses
         if not description and spec.paths is not None:
             description = spec.paths[path].description or spec.paths[path].summary
         return cls(
@@ -485,6 +491,7 @@ class APIOperation(BaseModel):
             path=path,
             method=method,
             properties=properties,
+            response_body=response_body,
             request_body=api_request_body,
         )
 
@@ -559,6 +566,10 @@ type {operation_name} = (_: {{
 }}) => any;
 """
         return typescript_definition.strip()
+ 
+    def fetch_response_body(self) -> str:
+        """Get response schema from API call"""
+        return str(self.response_body)
 
     @property
     def query_params(self) -> List[str]:
